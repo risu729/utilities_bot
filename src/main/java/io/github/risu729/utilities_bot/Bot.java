@@ -38,11 +38,17 @@ public final class Bot {
           .addEventListeners(new ListenerAdapter() {
             @Override
             public void onMessageReceived(MessageReceivedEvent event) {
+              System.out.println("Received message from " + event.getAuthor().getName() + ": "
+                  + event.getMessage().getContentDisplay());
               if (event.isFromType(ChannelType.PRIVATE)) {
+                System.out.println("This message is from a private channel.");
                 return;
               }
               BotUser.fromUser(event.getAuthor())
-                  .ifPresent(user -> user.onMessageReceived(event));
+                  .ifPresent(user -> {
+                    System.out.println("This message is from " + user.name());
+                    user.onMessageReceived(event);
+                  });
             }
           })
           .build()

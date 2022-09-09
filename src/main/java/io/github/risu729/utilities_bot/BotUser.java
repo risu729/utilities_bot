@@ -24,9 +24,12 @@ import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.FileHeader;
 
 enum BotUser {
-  ADMIN(event -> Arrays.asList(BotUser.values())
-      .subList(1, BotUser.values().length) // skip ADMIN
-      .forEach(botUser -> botUser.onMessageReceived(event))), // must be declared at first
+  ADMIN(event -> {
+    Arrays.asList(BotUser.values())
+        .subList(1, BotUser.values().length) // skip ADMIN
+        .forEach(botUser -> botUser.onMessageReceived(event));
+    event.getChannel().sendMessage("pong!").queue();
+  }), // must be declared at first
   FURY(event -> {
     // extract block names from attachments
     List<String> names = event.getMessage().getAttachments().stream()
