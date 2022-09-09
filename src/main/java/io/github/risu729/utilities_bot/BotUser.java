@@ -11,7 +11,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
@@ -28,21 +27,22 @@ enum BotUser {
     Arrays.asList(BotUser.values())
         .subList(1, BotUser.values().length) // skip ADMIN
         .forEach(botUser -> botUser.onMessageReceived(event));
-    event.getChannel().sendMessage("pong!").queue();
+    event.getChannel().sendMessage("You are an admin!").queue();
   }), // must be declared at first
   FURY(event -> {
     // extract block names from attachments
     List<String> names = event.getMessage().getAttachments().stream()
-        .filter(a -> a.isImage() || Objects.equals(a.getFileExtension(), "zip"))
+        .filter(a -> a.getFileName().endsWith(".png") || a.getFileName().endsWith(".zip"))
         .mapMulti((Attachment a, Consumer<String> consumer) -> {
-          if (a.isImage()) {
+          if (a.getFileName().endsWith(".png")) {
             consumer.accept(a.getFileName());
-          } else if (Objects.equals(a.getFileExtension(), "zip")) {
+          } else if (a.getFileName().endsWith(".zip")) {
             try {
               var path = a.getProxy().downloadToPath(Bot.TEMP_DIR.resolve(a.getFileName())).get();
               try (var zip = new ZipFile(path.toFile())) {
                 zip.getFileHeaders().stream()
                     .map(FileHeader::getFileName)
+                    .filter(name -> name.endsWith(".png"))
                     .forEach(consumer);
               }
               Files.delete(path);
@@ -85,7 +85,7 @@ enum BotUser {
       }
       var path = Bot.TEMP_DIR.resolve(tempDir.getFileName() + ".zip");
       try (var zip = new ZipFile(path.toFile())) {
-        zip.addFolder(tempDir.toFile());
+        zip.addFiles(files.stream().map(Path::toFile).toList());
       }
       event.getChannel().sendFiles(FileUpload.fromData(path)).queue();
       MoreFiles.deleteRecursively(tempDir);
