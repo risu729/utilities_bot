@@ -14,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.security.auth.login.LoginException;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -29,25 +28,21 @@ public final class Bot {
     throw new AssertionError();
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws LoginException {
 
     // start bot
+    var jda = JDABuilder.createLight(System.getenv("DISCORD_TOKEN"), GatewayIntent.DIRECT_MESSAGES)
+        .addEventListeners(new ListenerAdapter() {
+          @Override
+          public void onMessageReceived(MessageReceivedEvent event) {
+            BotUser.fromUser(event.getAuthor())
+                .ifPresent(user -> user.onMessageReceived(event));
+          }
+        })
+        .build();
     try {
-      JDABuilder.createDefault(System.getenv("DISCORD_TOKEN"))
-          .enableIntents(GatewayIntent.MESSAGE_CONTENT)
-          .addEventListeners(new ListenerAdapter() {
-            @Override
-            public void onMessageReceived(MessageReceivedEvent event) {
-              if (!event.isFromType(ChannelType.PRIVATE)) {
-                return;
-              }
-              BotUser.fromUser(event.getAuthor())
-                  .ifPresent(user -> user.onMessageReceived(event));
-            }
-          })
-          .build()
-          .awaitReady();
-    } catch (LoginException | InterruptedException e) {
+      jda.awaitReady();
+    } catch (InterruptedException e) {
       throw new RuntimeException(e);
     }
 
