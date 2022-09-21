@@ -21,14 +21,19 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.FileHeader;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 enum BotUser {
+
+  // must be declared at first
   ADMIN(event -> {
     Arrays.asList(BotUser.values())
         .subList(1, BotUser.values().length) // skip ADMIN
         .forEach(botUser -> botUser.onMessageReceived(event));
     event.getChannel().sendMessage("You are an admin!").queue();
-  }), // must be declared at first
+  }),
+
   FURY(event -> {
     // extract block names from attachments
     List<String> names = event.getMessage().getAttachments().stream()
@@ -100,7 +105,7 @@ enum BotUser {
   private final List<Long> ids;
   private final Consumer<MessageReceivedEvent> onMessageReceived;
 
-  BotUser(Consumer<MessageReceivedEvent> onMessageReceived) {
+  BotUser(@NotNull Consumer<@NotNull MessageReceivedEvent> onMessageReceived) {
     this.ids = Arrays.stream(checkNotNull(System.getenv(name() + ENV_SUFFIX))
             .split(","))
         .map(Long::parseLong)
@@ -108,13 +113,15 @@ enum BotUser {
     this.onMessageReceived = onMessageReceived;
   }
 
-  static Optional<BotUser> fromUser(User user) {
+  static @NotNull Optional<@NotNull BotUser> fromUser(@Nullable User user) {
     return Arrays.stream(values())
-        .filter(botUser -> botUser.ids.contains(user.getIdLong()))
+        .filter(botUser -> Optional.ofNullable(user)
+            .map(User::getIdLong)
+            .map(botUser.ids::contains).orElse(false))
         .collect(MoreCollectors.toOptional());
   }
 
-  void onMessageReceived(MessageReceivedEvent event) {
+  void onMessageReceived(@NotNull MessageReceivedEvent event) {
     onMessageReceived.accept(event);
   }
 }
