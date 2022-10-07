@@ -28,10 +28,15 @@ enum BotUser {
 
   // must be declared at first
   ADMIN(event -> {
-    Arrays.asList(BotUser.values())
-        .subList(1, BotUser.values().length) // skip ADMIN
+    Arrays.asList(BotUser.values()).subList(1, BotUser.values().length) // skip ADMIN
         .forEach(botUser -> botUser.onMessageReceived(event));
-    event.getChannel().sendMessage("You are an admin!").queue();
+    var runtime = Runtime.getRuntime();
+    long freeMemory = runtime.freeMemory();
+    long totalMemory = runtime.totalMemory();
+    event.getChannel().sendMessage(
+        "You are an admin!%nMemory Usage: %d MiB (Free: %d MiB, Total: %d MiB)".formatted(
+            (totalMemory - freeMemory) / 1024 / 1024, freeMemory / 1024 / 1024,
+            totalMemory / 1024 / 1024)).queue();
   }),
 
   FURY(event -> {
@@ -45,10 +50,8 @@ enum BotUser {
             try {
               var path = a.getProxy().downloadToPath(Bot.TEMP_DIR.resolve(a.getFileName())).get();
               try (var zip = new ZipFile(path.toFile())) {
-                zip.getFileHeaders().stream()
-                    .map(FileHeader::getFileName)
-                    .filter(name -> name.endsWith(".png"))
-                    .forEach(consumer);
+                zip.getFileHeaders().stream().map(FileHeader::getFileName)
+                    .filter(name -> name.endsWith(".png")).forEach(consumer);
               }
               Files.delete(path);
             } catch (IOException e) {
@@ -57,9 +60,7 @@ enum BotUser {
               throw new RuntimeException(e);
             }
           }
-        })
-        .map(s -> s.substring(0, s.lastIndexOf('.')))
-        .toList();
+        }).map(s -> s.substring(0, s.lastIndexOf('.'))).toList();
     if (names.isEmpty()) {
       return;
     }
@@ -85,8 +86,7 @@ enum BotUser {
         }
       });
       if (names.size() <= Message.MAX_FILE_AMOUNT) {
-        event.getChannel().sendFiles(files.stream().map(FileUpload::fromData).toList())
-            .queue();
+        event.getChannel().sendFiles(files.stream().map(FileUpload::fromData).toList()).queue();
       }
       var path = Bot.TEMP_DIR.resolve(tempDir.getFileName() + ".zip");
       try (var zip = new ZipFile(path.toFile())) {
@@ -106,19 +106,15 @@ enum BotUser {
   private final Consumer<MessageReceivedEvent> onMessageReceived;
 
   BotUser(@NotNull Consumer<@NotNull MessageReceivedEvent> onMessageReceived) {
-    this.ids = Arrays.stream(checkNotNull(System.getenv(name() + ENV_SUFFIX))
-            .split(","))
-        .map(Long::parseLong)
-        .toList();
+    this.ids = Arrays.stream(checkNotNull(System.getenv(name() + ENV_SUFFIX)).split(","))
+        .map(Long::parseLong).toList();
     this.onMessageReceived = onMessageReceived;
   }
 
   static @NotNull Optional<@NotNull BotUser> fromUser(@Nullable User user) {
-    return Arrays.stream(values())
-        .filter(botUser -> Optional.ofNullable(user)
-            .map(User::getIdLong)
-            .map(botUser.ids::contains).orElse(false))
-        .collect(MoreCollectors.toOptional());
+    return Arrays.stream(values()).filter(
+        botUser -> Optional.ofNullable(user).map(User::getIdLong).map(botUser.ids::contains)
+            .orElse(false)).collect(MoreCollectors.toOptional());
   }
 
   void onMessageReceived(@NotNull MessageReceivedEvent event) {
