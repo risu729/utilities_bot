@@ -41,7 +41,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.4.1</version>
+      <version>1.4.3</version>
     </dependency>
     <dependency>
       <groupId>com.google.guava</groupId>
@@ -51,7 +51,7 @@
     <dependency>
       <groupId>net.dv8tion</groupId>
       <artifactId>JDA</artifactId>
-      <version>5.0.0-alpha.19</version>
+      <version>5.0.0-alpha.20</version>
       <exclusions>
         <exclusion>
           <groupId>club.minnced</groupId>
