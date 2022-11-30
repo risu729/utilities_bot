@@ -1,0 +1,14 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS",
+    "watchPatterns": [
+      "src/main/**",
+      "pom.xml"
+    ]
+  },
+  "deploy": {
+    "startCommand": "sh target/bin/utilities_bot",
+    "restartPolicyType": "ALWAYS"
+  }
+}
