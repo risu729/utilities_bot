@@ -5,7 +5,7 @@ on: pull_request
 
 permissions:
   contents: write
-  pull-requests: write
+  pull-requests: read
 
 defaults:
   run:
@@ -21,11 +21,11 @@ jobs:
         id: metadata
         uses: dependabot/fetch-metadata@v1.3.5
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{secrets.GITHUB_TOKEN}}        
 
-      - run: gh pr merge "$PR" --rebase
+      - run: gh pr merge "$PR" --squash
         env:
-          PR: ${{github.event.pull_request.number}}
+          PR: ${{github.event.pull_request.html_url}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         if: |
           steps.metadata.outputs.update-type == 'version-update:semver-patch' ||
