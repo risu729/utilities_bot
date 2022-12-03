@@ -4,7 +4,8 @@
     "builder": "NIXPACKS",
     "watchPatterns": [
       "src/main/**",
-      "pom.xml"
+      "pom.xml",
+      "railway.json"
     ]
   },
   "deploy": {
