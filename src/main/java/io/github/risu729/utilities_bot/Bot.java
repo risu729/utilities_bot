@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2022 Risu
+ *
+ *  This source code is licensed under the MIT license found in the
+ *  LICENSE file in the root directory of this source tree.
+ *
+ */
+
 package io.github.risu729.utilities_bot;
 
 import com.google.common.io.MoreFiles;
@@ -17,6 +25,7 @@ import java.nio.file.Path;
 public final class Bot {
 
   private static final String SERVICE_NAME = "Utilities_Bot";
+  @SuppressWarnings("AccessOfSystemProperties")
   static final Path TEMP_DIR = Path.of(System.getProperties().getProperty("java.io.tmpdir"))
       .resolve(SERVICE_NAME);
 
@@ -25,6 +34,7 @@ public final class Bot {
     throw new AssertionError();
   }
 
+  @SuppressWarnings("CallToSystemGetenv")
   public static void main(String[] args) throws InterruptedException {
 
     // start bot

@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2022 Risu
+ *
+ *  This source code is licensed under the MIT license found in the
+ *  LICENSE file in the root directory of this source tree.
+ *
+ */
+
 package io.github.risu729.utilities_bot;
 
 import com.google.common.collect.MoreCollectors;
@@ -64,6 +72,7 @@ enum BotUser {
             } catch (IOException e) {
               throw new UncheckedIOException(e);
             } catch (InterruptedException | ExecutionException e) {
+              // noinspection ProhibitedExceptionThrown
               throw new RuntimeException(e);
             }
           }
@@ -114,6 +123,7 @@ enum BotUser {
   private final List<Long> ids;
   private final @NotNull Consumer<? super @NotNull MessageReceivedEvent> onMessageReceived;
 
+  @SuppressWarnings("CallToSystemGetenv")
   BotUser(@NotNull Consumer<? super @NotNull MessageReceivedEvent> onMessageReceived) {
     this.ids = Arrays.stream(checkNotNull(System.getenv(name() + ENV_SUFFIX)).split(","))
         .map(Long::parseLong)
@@ -121,6 +131,7 @@ enum BotUser {
     this.onMessageReceived = onMessageReceived;
   }
 
+  @SuppressWarnings("AccessingNonPublicFieldOfAnotherObject")
   static @NotNull Optional<@NotNull BotUser> fromUser(@Nullable User user) {
     return Arrays.stream(values())
         .filter(botUser -> Optional.ofNullable(user)

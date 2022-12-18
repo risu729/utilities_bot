@@ -9,7 +9,8 @@
     ]
   },
   "deploy": {
-    "startCommand": "sh target/bin/utilities_bot",
+    "buildCommand": "/bin/maven -DoutputFile=target/mvn-dependency-list.log -B -DskipTests clean dependency:list install",
+    "startCommand": "sh target/bin/erutcurts",
     "restartPolicyType": "ALWAYS"
   }
 }
