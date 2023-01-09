@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Risu
+ * Copyright (c) 2023 Risu
  *
  *  This source code is licensed under the MIT license found in the
  *  LICENSE file in the root directory of this source tree.
@@ -14,10 +14,12 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.utils.FileUpload;
+import net.dv8tion.jda.internal.utils.JDALogger;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.FileHeader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -118,6 +120,8 @@ enum BotUser {
     }
   });
 
+  private static final Logger LOGGER = JDALogger.getLog(BotUser.class);
+
   private static final String ENV_SUFFIX = "_USER_IDS";
 
   private final List<Long> ids;
@@ -143,5 +147,6 @@ enum BotUser {
 
   void onMessageReceived(@NotNull MessageReceivedEvent event) {
     onMessageReceived.accept(event);
+    LOGGER.info("%s used the bot.".formatted(name()));
   }
 }
